@@ -1,5 +1,6 @@
 #ИМПОРТ ----------------------------------------
 from scapy.all import sniff, get_working_if, get_if_addr
+from module.files import clear_buffer, save_in_buffer
 
 
 #КЛАСС УСТРОЙСТВА -------------------------------
@@ -19,16 +20,27 @@ class DeviceData:
 class Sniff(DeviceData):
     def __init__(self):
         super().__init__()
-        self.filter_traf = "tcp[tcpflags] & tcp-syn !=0"
+        self.filter_traf = "tcp[tcpflags] & tcp-ack !=0"
+
+
+    def save_packets(self, packet):
+        value_dump = str(packet)
+        save_in_buffer(value_dump)
+        print(packet.summary())
 
 
     #ЗАПУСК МОДУЛЯ -------------------------------------
     def run_sniff(self):
+
+        clear_buffer()
+
         sniff(
         iface=self.interface,
         filter=self.filter_traf,
-        prn= lambda packet: print(packet.summary())
-        )
+        prn=self.save_packets)
+
+
+
 
 
 # device = DeviceData()
